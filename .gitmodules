@@ -1,0 +1,6 @@
+[submodule "nuttx/apps"]
+	path = nuttx/apps
+	url = https://gitee.com/huanglilongwk/nuttx-apps
+[submodule "nuttx/nuttx"]
+	path = nuttx/nuttx
+	url = https://gitee.com/huanglilongwk/nuttx
