@@ -27,4 +27,4 @@ set(AC_HW_FLAGS         "-mcpu=cortex-m4 -mthumb -mfloat-abi=soft ")
 set(AC_HW_FLAGS         "${AC_HW_FLAGS} -isystem ${NUTTX_PATH}/include")
 set(AC_HW_FLAGS         "${AC_HW_FLAGS} -pipe")
 
-set(AC_LINKER_FLAGS     "--entry=__start -nostdlib -T${MCU_LINKER_SCRIPT}")
+set(AC_LINKER_FLAGS     "--entry=__start -nostdlib -L /usr/lib/gcc/arm-none-eabi/9.2.1/thumb/v7e-m/nofp -T${MCU_LINKER_SCRIPT}")

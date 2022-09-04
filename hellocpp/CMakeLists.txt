@@ -19,15 +19,14 @@ set(CMAKE_C_STANDARD 99)
 # TODO build flags
 set(AC_COMMON_FLAGS "${AC_COMMON_FLAGS} -Wall -Wshadow -Wundef -fno-strict-aliasing -Os")
 set(AC_COMMON_FLAGS "${AC_COMMON_FLAGS} -D_DEBUG -D_LIBCPP_BUILD_STATIC -D_LIBCPP_NO_EXCEPTIONS ")
-set(AC_COMMON_FLAGS "${AC_COMMON_FLAGS} -fno-exceptions -fcheck-new -fno-rtti -pedantic ")
-set(AC_COMMON_FLAGS "${AC_COMMON_FLAGS} -nostdinc++")
+set(AC_COMMON_FLAGS "${AC_COMMON_FLAGS} -nostartfiles -nodefaultlibs -fno-exceptions -fcheck-new -fno-rtti -pedantic ")
+set(AC_COMMON_FLAGS "${AC_COMMON_FLAGS} -nostdlib -nostdinc++")
 
 # fix: https://github.com/apache/incubator-nuttx/issues/5530
 set(AC_DEFINES "${AC_DEFINES} -D__NuttX__ -DCONFIG_WCHAR_BUILTIN")
 
 include_directories(
     src
-    ${NUTTX_PATH}/include/libcxx
     ${NUTTX_PATH}/include
     ${NUTTX_PATH}/arch/chip
 )

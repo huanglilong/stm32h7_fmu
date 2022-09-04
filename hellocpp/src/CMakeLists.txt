@@ -1,15 +1,11 @@
-set(H_FILES hello_world.h)
-
-set(S_FILES hello_world.cc)
-
 link_directories(${EXE_NAME} ${NUTTX_PATH}/libs)
 
-add_executable(${EXE_NAME} ${S_FILES} main.cc ${H_FILES})
+add_executable(${EXE_NAME} main.cc)
 
 add_custom_command(
         TARGET ${EXE_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} ARGS -S -O binary ${CMAKE_BINARY_DIR}/${EXE_NAME}.elf ${CMAKE_BINARY_DIR}/${EXE_NAME}.bin
+        COMMAND ${CMAKE_OBJCOPY} ARGS -S -O binary ${CMAKE_BINARY_DIR}/src/${EXE_NAME}.elf ${CMAKE_BINARY_DIR}/${EXE_NAME}.bin
 )
 
 target_link_libraries(${EXE_NAME} --start-group)
@@ -27,6 +23,6 @@ target_link_libraries(${EXE_NAME} binfmt)
 target_link_libraries(${EXE_NAME} board)
 target_link_libraries(${EXE_NAME} gcc)
 # "LLVM low level C++ Library" to "GNU low level libsupc++"
-target_link_libraries(${EXE_NAME} supc++)
+# target_link_libraries(${EXE_NAME} supc++)
 
 target_link_libraries(${EXE_NAME} --end-group)
