@@ -1,2 +1,7 @@
 .vscode/**
 build/**
+**.bin
+**.hex
+**.a
+**.o
+**.map
