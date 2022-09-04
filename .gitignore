@@ -1,5 +1,6 @@
 .vscode/**
-build/**
+*/build/**
+**/nuttx-export-10.4.0/
 **.bin
 **.hex
 **.a
