@@ -1,18 +1,20 @@
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
-# Toolchain path
-set(TOOLCHAIN_PATH "/usr")
-set(MCU_LINKER_SCRIPT "-T${NUTTX_PATH}/scripts/flash.ld")
-
+# Toolchain
 set(COMPILER_PREFIX "arm-none-eabi")
 
-# cmake-format: off
-set(TOOLCHAIN_SYSROOT  "${TOOLCHAIN_PATH}")
-set(TOOLCHAIN_BIN_PATH "${TOOLCHAIN_PATH}/bin")
-set(TOOLCHAIN_INC_PATH "${TOOLCHAIN_PATH}/lib/${COMPILER_PREFIX}/include")
-set(TOOLCHAIN_LIB_PATH "${TOOLCHAIN_PATH}/lib/${COMPILER_PREFIX}/lib")
+# find arm-none-eabi binary
+execute_process(
+    COMMAND which ${COMPILER_PREFIX}-gcc
+    OUTPUT_VARIABLE TOOLCHAIN_GCC_PATH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+# extract toolchain path
+get_filename_component(TOOLCHAIN_PATH ${TOOLCHAIN_GCC_PATH} DIRECTORY)
+message(STATUS "Toolchain path: ${TOOLCHAIN_PATH}")
 
+# cmake-format: off
 find_program(CMAKE_C_COMPILER NAMES ${COMPILER_PREFIX}-gcc HINTS ${TOOLCHAIN_BIN_PATH})
 find_program(CMAKE_CXX_COMPILER NAMES ${COMPILER_PREFIX}-g++ HINTS ${TOOLCHAIN_BIN_PATH})
 find_program(CMAKE_AR NAMES ${COMPILER_PREFIX}-ar HINTS ${TOOLCHAIN_BIN_PATH})
@@ -32,8 +34,18 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # STM32H743, Cortex-M7 with DP-FPU
-set(AC_HW_FLAGS         "-mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard")
-set(AC_HW_FLAGS         "${AC_HW_FLAGS} -isystem ${NUTTX_PATH}/include")
-set(AC_HW_FLAGS         "${AC_HW_FLAGS} -pipe")
+set(CPU_FLAGS     "-mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard" CACHE STRING "" FORCE)
+set(AC_HW_FLAGS   "${CPU_FLAGS} -pipe -isystem ${NUTTX_PATH}/include" CACHE STRING "" FORCE)
 
-set(AC_LINKER_FLAGS     "--entry=__start -nostdlib -nostdinc++ -L /usr/lib/gcc/arm-none-eabi/9.2.1/thumb/v7e-m+dp/hard ${MCU_LINKER_SCRIPT}")
+# find gcc library
+execute_process(
+    COMMAND ${CMAKE_C_COMPILER} -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -print-file-name=libgcc.a
+    OUTPUT_VARIABLE LIBGCC
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+get_filename_component(LIBGCC_PATH ${LIBGCC} DIRECTORY)
+message(STATUS "Library gcc path: ${LIBGCC_PATH}")
+
+# linker flags
+set(MCU_LINKER_SCRIPT "-T${NUTTX_PATH}/scripts/flash.ld")
+set(AC_LINKER_FLAGS   "--entry=__start -nostdlib -nostdinc++ -L ${LIBGCC_PATH} ${MCU_LINKER_SCRIPT}")
