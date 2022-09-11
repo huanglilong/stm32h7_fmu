@@ -9,8 +9,6 @@ Build:
 
     $ ./tools/configure.sh -l nucleo-h743zi2:nsh
 
-    $ make
-
     $ make export
 
     $ cd ../..;tar -zxvf nuttx/nuttx/nuttx-export-10.4.0.tar.gz -C .
@@ -19,3 +17,15 @@ Build:
   2. How to build apps
 
     $ cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=true;cmake --build build
+
+  3. How to update firmware
+
+    $ st-flash write ./build/fmu_nuttx.bin 0x8000000
+
+  4. Testing with nsh
+
+    $ reset MCU
+    
+    $ screen /dev/ttyACM0 115200 8N1
+
+    ![nsh testing](figs/nsh.png.png)
