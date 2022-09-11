@@ -4,15 +4,12 @@ cmake_minimum_required(VERSION 3.2)
 set(NUTTX_PATH "${CMAKE_SOURCE_DIR}/nuttx-export-10.4.0")
 
 # Toolchain
-include(cmake/arm_none_eabi_gcc.cmake)
+include(cmake/toolchain_arm_none_eabi.cmake)
 
 # Project
-project(HelloCpp
-        VERSION 1.0
-        DESCRIPTION "Hello world for Nuttx!"
-)
+project(HelloCpp C CXX ASM)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
