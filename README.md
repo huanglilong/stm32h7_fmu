@@ -28,4 +28,4 @@ Build:
     
     $ screen /dev/ttyACM0 115200 8N1
 
-    ![nsh testing](figs/nsh.png.png)
+    ![nsh testing](figs/nsh.png)
