@@ -7,21 +7,15 @@ Build:
 
     $ cd nuttx/nuttx
 
-    $ ./tools/configure.sh -l stm32f4discovery:nsh
+    $ ./tools/configure.sh -l nucleo-h743zi2:nsh
 
     $ make
 
     $ make export
 
+    $ cd ../..;tar -zxvf nuttx/nuttx/nuttx-export-10.4.0.tar.gz -C .
+
 
   2. How to build apps
 
-    $ cd hellocpp
-
-    $ mkdir build
-
-    $ cd build
-
-    $ cmake ..
-
-    $ make
+    $ cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=true;cmake --build build
