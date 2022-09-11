@@ -1,3 +1,5 @@
+# ref: https://github.com/PX4/PX4-Autopilot
+# ref: https://nuttx.apache.org/docs/latest/guides/cpp_cmake.html
 cmake_minimum_required(VERSION 3.16)
 
 # Nuttx Path
@@ -17,9 +19,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# fix: https://github.com/apache/incubator-nuttx/issues/5530
-set(AC_DEFINES "${AC_DEFINES} -D__NuttX__ -DCONFIG_WCHAR_BUILTIN")
-
 include_directories(
     src
     ${NUTTX_PATH}/include
@@ -27,8 +26,8 @@ include_directories(
 )
 
 # C++ and C flags
-set(CMAKE_C_FLAGS       "${CMAKE_C_FLAGS} ${AC_HW_FLAGS} ${AC_DEFINES}")
-set(CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS} ${AC_HW_FLAGS} ${AC_DEFINES}")
+set(CMAKE_C_FLAGS       "${CMAKE_C_FLAGS} ${AC_HW_FLAGS}")
+set(CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS} ${AC_HW_FLAGS}")
 
 set(CMAKE_SKIP_RPATH ON)
 set(BUILD_SHARED_LIBS OFF)
