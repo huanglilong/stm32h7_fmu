@@ -39,8 +39,10 @@ link_directories(${NUTTX_PATH}/libs)
 # generate binary
 set(EXE_NAME ${PROJECT_NAME})
 add_executable(${EXE_NAME} empty.cc)
-set(FMU_NAME_ELF ${PROJECT_BINARY_DIR}/${EXE_NAME}.elf)
-set_target_properties(${EXE_NAME} PROPERTIES OUTPUT_NAME ${FMU_NAME_ELF})
+
+# same as '-Wl,--output=${EXE_NAME}.elf'
+# set(FMU_NAME_ELF ${PROJECT_BINARY_DIR}/${EXE_NAME}.elf)
+# set_target_properties(${EXE_NAME} PROPERTIES OUTPUT_NAME ${FMU_NAME_ELF})
 
 target_link_libraries(${EXE_NAME}
         -nostartfiles
@@ -52,6 +54,7 @@ target_link_libraries(${EXE_NAME}
         -Wl,--print-memory-usage
         -Wl,--script=${NUTTX_PATH}/scripts/flash.ld
         -Wl,-Map=${EXE_NAME}.map
+        -Wl,--output=${EXE_NAME}.elf
         -Wl,--warn-common
         -Wl,--gc-sections
 )
