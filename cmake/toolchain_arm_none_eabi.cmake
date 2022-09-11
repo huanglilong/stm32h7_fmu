@@ -4,7 +4,7 @@ set(CMAKE_SYSTEM_PROCESSOR arm)
 # Toolchain
 set(COMPILER_PREFIX "arm-none-eabi")
 
-# find arm-none-eabi binary
+# find arm-none-eabi-gcc binary
 execute_process(
     COMMAND which ${COMPILER_PREFIX}-gcc
     OUTPUT_VARIABLE TOOLCHAIN_GCC_PATH
@@ -35,7 +35,7 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # STM32H743, Cortex-M7 with DP-FPU
 set(CPU_FLAGS     "-mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard" CACHE STRING "" FORCE)
-set(AC_HW_FLAGS   "${CPU_FLAGS} -pipe -isystem ${NUTTX_PATH}/include" CACHE STRING "" FORCE)
+set(AC_HW_FLAGS   "${CPU_FLAGS} -pipe -isystem" CACHE STRING "" FORCE)
 
 # C++ and C flags
 # ref: cmake/px4_add_common_flags.cmake
@@ -119,7 +119,3 @@ execute_process(
 )
 get_filename_component(LIBGCC_PATH ${LIBGCC} DIRECTORY)
 message(STATUS "Library gcc path: ${LIBGCC_PATH}")
-
-# linker flags
-set(MCU_LINKER_SCRIPT "-T${NUTTX_PATH}/scripts/flash.ld")
-set(AC_LINKER_FLAGS   "--entry=__start -nostdlib -nostdinc++ -L ${LIBGCC_PATH} ${MCU_LINKER_SCRIPT}")

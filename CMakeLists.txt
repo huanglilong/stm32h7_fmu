@@ -1,0 +1,79 @@
+cmake_minimum_required(VERSION 3.16)
+
+# Nuttx Path
+set(NUTTX_PATH "${CMAKE_SOURCE_DIR}/nuttx-export-10.4.0")
+
+# Toolchain
+set(CMAKE_TOOLCHAIN_FILE cmake/toolchain_arm_none_eabi.cmake)
+
+# linker flags
+set(MCU_LINKER_SCRIPT "${NUTTX_PATH}/scripts/flash.ld")
+
+# Project
+project(fmu_nuttx C CXX ASM)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+# fix: https://github.com/apache/incubator-nuttx/issues/5530
+set(AC_DEFINES "${AC_DEFINES} -D__NuttX__ -DCONFIG_WCHAR_BUILTIN")
+
+include_directories(
+    src
+    ${NUTTX_PATH}/include
+    ${NUTTX_PATH}/arch/chip
+)
+
+# C++ and C flags
+set(CMAKE_C_FLAGS       "${CMAKE_C_FLAGS} ${AC_HW_FLAGS} ${AC_DEFINES}")
+set(CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS} ${AC_HW_FLAGS} ${AC_DEFINES}")
+
+set(CMAKE_SKIP_RPATH ON)
+set(BUILD_SHARED_LIBS OFF)
+
+# add all libraries
+link_directories(${NUTTX_PATH}/libs)
+
+# generate binary
+set(EXE_NAME ${PROJECT_NAME})
+add_executable(${EXE_NAME} empty.cc)
+set(FMU_NAME_ELF ${PROJECT_BINARY_DIR}/${EXE_NAME}.elf)
+set_target_properties(${EXE_NAME} PROPERTIES OUTPUT_NAME ${FMU_NAME_ELF})
+
+target_link_libraries(${EXE_NAME}
+        -nostartfiles
+        -nodefaultlibs
+        -nostdlib
+        -nostdinc++
+        -fno-exceptions
+        -fno-rtti
+        -Wl,--print-memory-usage
+        -Wl,--script=${NUTTX_PATH}/scripts/flash.ld
+        -Wl,-Map=${EXE_NAME}.map
+        -Wl,--warn-common
+        -Wl,--gc-sections
+)
+target_link_libraries(${EXE_NAME} -Wl,--start-group)
+target_link_libraries(${EXE_NAME} sched)
+target_link_libraries(${EXE_NAME} drivers)
+target_link_libraries(${EXE_NAME} boards)
+target_link_libraries(${EXE_NAME} c)
+target_link_libraries(${EXE_NAME} mm)
+target_link_libraries(${EXE_NAME} arch)
+target_link_libraries(${EXE_NAME} xx)
+target_link_libraries(${EXE_NAME} apps)
+target_link_libraries(${EXE_NAME} fs)
+target_link_libraries(${EXE_NAME} binfmt)
+target_link_libraries(${EXE_NAME} board)
+target_link_libraries(${EXE_NAME} gcc)
+# "LLVM low level C++ Library" to "GNU low level libsupc++"
+# target_link_libraries(${EXE_NAME} supc++)
+target_link_libraries(${EXE_NAME} -Wl,--end-group)
+
+add_custom_command(
+        TARGET ${EXE_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_OBJCOPY} ARGS -S -O binary ${CMAKE_BINARY_DIR}/${EXE_NAME}.elf ${CMAKE_BINARY_DIR}/${EXE_NAME}.bin
+)
