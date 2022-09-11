@@ -1,0 +1,39 @@
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+
+# Toolchain path
+set(TOOLCHAIN_PATH "/usr")
+set(MCU_LINKER_SCRIPT "-T${NUTTX_PATH}/scripts/flash.ld")
+
+set(COMPILER_PREFIX "arm-none-eabi")
+
+# cmake-format: off
+set(TOOLCHAIN_SYSROOT  "${TOOLCHAIN_PATH}")
+set(TOOLCHAIN_BIN_PATH "${TOOLCHAIN_PATH}/bin")
+set(TOOLCHAIN_INC_PATH "${TOOLCHAIN_PATH}/lib/${COMPILER_PREFIX}/include")
+set(TOOLCHAIN_LIB_PATH "${TOOLCHAIN_PATH}/lib/${COMPILER_PREFIX}/lib")
+
+find_program(CMAKE_C_COMPILER NAMES ${COMPILER_PREFIX}-gcc HINTS ${TOOLCHAIN_BIN_PATH})
+find_program(CMAKE_CXX_COMPILER NAMES ${COMPILER_PREFIX}-g++ HINTS ${TOOLCHAIN_BIN_PATH})
+find_program(CMAKE_AR NAMES ${COMPILER_PREFIX}-ar HINTS ${TOOLCHAIN_BIN_PATH})
+find_program(CMAKE_RANLIB NAMES ${COMPILER_PREFIX}-ranlib HINTS ${TOOLCHAIN_BIN_PATH})
+find_program(CMAKE_LINKER NAMES ${COMPILER_PREFIX}-ld HINTS ${TOOLCHAIN_BIN_PATH})
+find_program(CMAKE_ASM_COMPILER NAMES ${COMPILER_PREFIX}-gcc HINTS ${TOOLCHAIN_BIN_PATH})
+find_program(CMAKE_OBJCOPY NAMES ${COMPILER_PREFIX}-objcopy HINTS ${TOOLCHAIN_BIN_PATH})
+find_program(CMAKE_OBJDUMP NAMES ${COMPILER_PREFIX}-objdump HINTS ${TOOLCHAIN_BIN_PATH})
+find_program(CMAKE_SIZE NAMES ${COMPILER_PREFIX}-size HINTS ${TOOLCHAIN_BIN_PATH})
+
+# https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cmake-toolchains-7
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
+# STM32H743, Cortex-M7 with DP-FPU
+set(AC_HW_FLAGS         "-mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard")
+set(AC_HW_FLAGS         "${AC_HW_FLAGS} -isystem ${NUTTX_PATH}/include")
+set(AC_HW_FLAGS         "${AC_HW_FLAGS} -pipe")
+
+set(AC_LINKER_FLAGS     "--entry=__start -nostdlib -nostdinc++ -L /usr/lib/gcc/arm-none-eabi/9.2.1/thumb/v7e-m+dp/hard ${MCU_LINKER_SCRIPT}")

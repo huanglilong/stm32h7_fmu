@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.2)
 set(NUTTX_PATH "${CMAKE_SOURCE_DIR}/nuttx-export-10.4.0")
 
 # Toolchain
-include(cmake/stm32f4discovery.cmake)
+include(cmake/arm_none_eabi_gcc.cmake)
 
 # Project
 project(HelloCpp
@@ -15,6 +15,7 @@ project(HelloCpp
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # TODO build flags
 set(AC_COMMON_FLAGS "${AC_COMMON_FLAGS} -Wall -Wshadow -Wundef -fno-strict-aliasing -Os")
@@ -39,6 +40,6 @@ if (PARAM_DEBUG)
 endif()
 
 set(CMAKE_SKIP_RPATH ON)
-set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} ${AC_LINKER_FLAGS} -o ${EXE_NAME}.elf <OBJECTS> <LINK_LIBRARIES>")
+set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_LINKER} ${AC_LINKER_FLAGS} -Map=${CMAKE_PROJECT_NAME}.map -o ${EXE_NAME}.elf <OBJECTS> <LINK_LIBRARIES>")
 set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(src)
