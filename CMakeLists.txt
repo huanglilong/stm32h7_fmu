@@ -3,13 +3,14 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Nuttx Path
-set(NUTTX_PATH "${CMAKE_SOURCE_DIR}/nuttx-export-10.4.0")
+set(NUTTX_SRC_PATH "${CMAKE_SOURCE_DIR}/nuttx/nuttx")
+set(NUTTX_EXPORT_PATH "${CMAKE_SOURCE_DIR}/nuttx-export-10.4.0")
 
 # Toolchain
 set(CMAKE_TOOLCHAIN_FILE cmake/toolchain_arm_none_eabi.cmake)
 
 # linker flags
-set(MCU_LINKER_SCRIPT "${NUTTX_PATH}/scripts/flash.ld")
+set(MCU_LINKER_SCRIPT "${NUTTX_EXPORT_PATH}/scripts/flash.ld")
 
 # Project
 project(fmu_nuttx C CXX ASM)
@@ -19,10 +20,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+# Build Nuttx for external board configs
+add_subdirectory(nuttx ${CMAKE_BINARY_DIR}/nuttx)
+
 include_directories(
     src
-    ${NUTTX_PATH}/include
-    ${NUTTX_PATH}/arch/chip
+    ${NUTTX_EXPORT_PATH}/include
+    ${NUTTX_EXPORT_PATH}/arch/chip
 )
 
 # C++ and C flags
@@ -33,11 +37,13 @@ set(CMAKE_SKIP_RPATH ON)
 set(BUILD_SHARED_LIBS OFF)
 
 # add all libraries
-link_directories(${NUTTX_PATH}/libs)
+link_directories(${NUTTX_EXPORT_PATH}/libs)
 
 # generate binary
 set(EXE_NAME ${PROJECT_NAME})
 add_executable(${EXE_NAME} empty.cc)
+# nuttx_export_libs: force build Nuttx first
+add_dependencies(${EXE_NAME} nuttx_export_libs)
 
 # same as '-Wl,--output=${EXE_NAME}.elf'
 # set(FMU_NAME_ELF ${PROJECT_BINARY_DIR}/${EXE_NAME}.elf)
@@ -51,7 +57,7 @@ target_link_libraries(${EXE_NAME}
         -fno-exceptions
         -fno-rtti
         -Wl,--print-memory-usage
-        -Wl,--script=${NUTTX_PATH}/scripts/flash.ld
+        -Wl,--script=${NUTTX_EXPORT_PATH}/scripts/flash.ld
         -Wl,-Map=${EXE_NAME}.map
         -Wl,--output=${EXE_NAME}.elf
         -Wl,--warn-common
