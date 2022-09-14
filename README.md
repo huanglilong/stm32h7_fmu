@@ -9,7 +9,7 @@ Build:
 
     $ ./tools/configure.sh -l nucleo-h743zi2:nsh
 
-    $ make export
+    $ make; make export
 
     $ cd ../..;tar -zxvf nuttx/nuttx/nuttx-export-10.4.0.tar.gz -C .
 
