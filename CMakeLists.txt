@@ -2,9 +2,13 @@
 # ref: https://nuttx.apache.org/docs/latest/guides/cpp_cmake.html
 cmake_minimum_required(VERSION 3.16)
 
+# default board config
+set(NUTTX_BOARD_CONFIG "nucleo-h743zi2" CACHE STRING "" FORCE)
+message(STATUS "Board config: ${NUTTX_BOARD_CONFIG}")
+
 # Nuttx Path
-set(NUTTX_SRC_PATH "${CMAKE_SOURCE_DIR}/nuttx/nuttx")
-set(NUTTX_EXPORT_PATH "${CMAKE_SOURCE_DIR}/nuttx-export-10.4.0")
+set(NUTTX_SRC_PATH "${CMAKE_SOURCE_DIR}/nuttx/nuttx" CACHE STRING "" FORCE)
+set(NUTTX_EXPORT_PATH "${CMAKE_BINARY_DIR}/nuttx-export-10.4.0" CACHE STRING "" FORCE)
 
 # Toolchain
 set(CMAKE_TOOLCHAIN_FILE cmake/toolchain_arm_none_eabi.cmake)

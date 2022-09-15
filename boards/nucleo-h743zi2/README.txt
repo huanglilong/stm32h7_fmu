@@ -262,7 +262,7 @@ nsh>
 
 How to use external board config NuttX
   $ cd ${NUTTX_PATH}
-  $ cp ../../boards/stm32h7_nsh/configs/nsh/defconfig .config
-  $ cp ../../boards/stm32h7_nsh/scripts/Make.defs .
+  $ cp ../../boards/nucleo-h743zi2/configs/nsh/defconfig .config
+  $ cp ../../boards/nucleo-h743zi2/scripts/Make.defs .
   $ make olddefconfig
   $ make;make export
