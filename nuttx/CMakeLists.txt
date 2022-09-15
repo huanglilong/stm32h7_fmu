@@ -17,8 +17,8 @@ add_custom_command(
 # Build Nuttx and generates nuttx-export-10.4.0 directory
 add_custom_command(
       OUTPUT ${CMAKE_BINARY_DIR}/nuttx-export-10.4.0
-      COMMAND make
-      COMMAND make export
+      COMMAND make --no-print-directory --silent
+      COMMAND make export --no-print-directory --silent
       COMMAND tar -xzf ${NUTTX_SRC_PATH}/nuttx-export-10.4.0.tar.gz -C ${CMAKE_BINARY_DIR}
       DEPENDS
         ${NUTTX_SRC_PATH}/.config
