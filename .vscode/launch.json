@@ -1,0 +1,28 @@
+{
+  // st-link v2 / v3
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "stlink-h743vi",
+      "device": "STM32H743VI",
+      "svdFile": "",
+      "interface": "swd",
+      "executable": "${workspaceRoot}/build/fmu_nuttx.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "interface/stlink-v2-1.cfg",
+        "target/stm32h7x_dual_bank.cfg"
+      ],
+      "breakAfterReset": true,
+      "armToolchainPath": "/opt/gcc-arm-none-eabi/bin",
+      "cwd": "${workspaceRoot}",
+      "internalConsoleOptions":"openOnSessionStart",
+      "preLaunchCommands": [
+        "set mem inaccessible-by-default off",
+        "set print pretty",
+      ]
+    }
+  ]
+}

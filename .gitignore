@@ -1,5 +1,5 @@
-.vscode/**
 **build/**
+.vscode/.cortex-debug**
 **/nuttx-export*/
 **.depend
 **.dep
