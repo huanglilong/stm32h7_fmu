@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # default board config
-set(NUTTX_BOARD_CONFIG "nucleo-h743zi2" CACHE STRING "" FORCE)
+set(NUTTX_BOARD_CONFIG "fmu-h743vi" CACHE STRING "" FORCE)
 message(STATUS "Board config: ${NUTTX_BOARD_CONFIG}")
 
 # Nuttx Path
