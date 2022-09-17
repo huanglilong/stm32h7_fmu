@@ -31,8 +31,9 @@ add_custom_command(
       OUTPUT  ${CMAKE_BINARY_DIR}/nuttx-export-10.4.0
       COMMAND tar -xzf ${NUTTX_SRC_PATH}/nuttx-export-10.4.0.tar.gz -C ${CMAKE_BINARY_DIR}
       # TODO(llhuang) COMMAND make distclean -C ${NUTTX_SRC_PATH}
-      COMMAND find ${NUTTX_SRC_PATH} -type f -name \*.o -delete
-      COMMAND find ${CMAKE_SOURCE_DIR}/boards -type f -name \*.o -delete
+      # remove all generated files
+      COMMAND find ${NUTTX_SRC_PATH} -type f \\\( -name "*.o" -o -name "*lib*.a" -o -name "*.depend" -o -name "*.dep" \\\) -delete
+      COMMAND find ${CMAKE_SOURCE_DIR}/boards -type f \\\( -name "*.o" -o -name "*lib*.a" -o -name "*.depend" -o -name "*.dep" \\\) -delete
       COMMENT "Extract and distclean Nuttx."
       DEPENDS
         ${CMAKE_BINARY_DIR}/nuttx-export-10.4.0.tar.gz
