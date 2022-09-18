@@ -89,6 +89,8 @@
 #define GPIO_LED_ORANGE GPIO_LD2
 #define GPIO_LED_RED GPIO_LD3
 
+// FMU-H743VI not support VBUS, PWRON and OVER
+/*
 #define GPIO_OTGFS_VBUS                                                        \
   (GPIO_INPUT | GPIO_FLOAT | GPIO_SPEED_100MHz | GPIO_OPENDRAIN | GPIO_PORTA | \
    GPIO_PIN9)
@@ -106,6 +108,7 @@
   (GPIO_INPUT | GPIO_FLOAT | GPIO_SPEED_100MHz | GPIO_PUSHPULL | GPIO_PORTG | \
    GPIO_PIN7)
 #endif
+*/
 
 /****************************************************************************
  * Public Function Prototypes
