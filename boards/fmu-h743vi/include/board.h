@@ -39,35 +39,27 @@
 
 /* Clocking *****************************************************************/
 
-/* The Nucleo-144  board provides the following clock sources:
+/* The FMU-H743VI board provides the following clock sources:
  *
- *   MCO: 8 MHz from MCO output of ST-LINK is used as input clock (default)
- *   X2:  32.768 KHz crystal for LSE
- *   X3:  HSE crystal oscillator (not provided)
+ *   HSE: 25MHz crystal oscillator
  *
  * So we have these clock source available within the STM32
  *
  *   HSI: 16 MHz RC factory-trimmed
  *   LSI: 32 KHz RC
- *   HSE: 8 MHz from MCO output of ST-LINK
- *   LSE: 32.768 kHz
+ *   HSE: 25 MHz from crystal oscillator
  */
 
-#define STM32_BOARD_XTAL 8000000ul /* ST-LINK MCO */
+#define STM32_BOARD_XTAL 25000000ul /* HSE */
 
 #define STM32_HSI_FREQUENCY 16000000ul
 #define STM32_LSI_FREQUENCY 32000
 #define STM32_HSE_FREQUENCY STM32_BOARD_XTAL
-#define STM32_LSE_FREQUENCY 32768
+// #define STM32_LSE_FREQUENCY 32768
 
 /* Main PLL Configuration.
  *
- * PLL source is HSE = 8,000,000
- *
- * To use HSE, configure the solder bridges on the board:
- *
- *  - SB148, SB8 and SB9 OFF
- *  - SB112 and SB149 ON
+ * PLL source is HSE = 25,000,000
  *
  * When STM32_HSE_FREQUENCY / PLLM <= 2MHz VCOL must be selected.
  * Otherwise you must select VCOH.
@@ -90,13 +82,13 @@
  */
 
 #define STM32_BOARD_USEHSE
-#define STM32_HSEBYP_ENABLE
+// #define STM32_HSEBYP_ENABLE
 
 #define STM32_PLLCFG_PLLSRC RCC_PLLCKSELR_PLLSRC_HSE
 
-/* PLL1, wide 4 - 8 MHz input, enable DIVP, DIVQ, DIVR
+/* PLL1, wide 4 - 8 MHz input (25 / 5 = 5MHz), enable DIVP, DIVQ, DIVR
  *
- *   PLL1_VCO = (8,000,000 / 2) * 200 = 800 MHz
+ *   PLL1_VCO = (25,000,000 / 5) * 160 = 800 MHz
  *
  *   PLL1P = PLL1_VCO/2  = 800 MHz / 2   = 400 MHz
  *   PLL1Q = PLL1_VCO/4  = 800 MHz / 4   = 200 MHz
@@ -106,13 +98,13 @@
 #define STM32_PLLCFG_PLL1CFG                                   \
   (RCC_PLLCFGR_PLL1VCOSEL_WIDE | RCC_PLLCFGR_PLL1RGE_4_8_MHZ | \
    RCC_PLLCFGR_DIVP1EN | RCC_PLLCFGR_DIVQ1EN | RCC_PLLCFGR_DIVR1EN)
-#define STM32_PLLCFG_PLL1M RCC_PLLCKSELR_DIVM1(2)
-#define STM32_PLLCFG_PLL1N RCC_PLL1DIVR_N1(200)
+#define STM32_PLLCFG_PLL1M RCC_PLLCKSELR_DIVM1(5)
+#define STM32_PLLCFG_PLL1N RCC_PLL1DIVR_N1(160)
 #define STM32_PLLCFG_PLL1P RCC_PLL1DIVR_P1(2)
 #define STM32_PLLCFG_PLL1Q RCC_PLL1DIVR_Q1(4)
 #define STM32_PLLCFG_PLL1R RCC_PLL1DIVR_R1(8)
 
-#define STM32_VCO1_FREQUENCY ((STM32_HSE_FREQUENCY / 2) * 200)
+#define STM32_VCO1_FREQUENCY ((STM32_HSE_FREQUENCY / 5) * 160)
 #define STM32_PLL1P_FREQUENCY (STM32_VCO1_FREQUENCY / 2)
 #define STM32_PLL1Q_FREQUENCY (STM32_VCO1_FREQUENCY / 4)
 #define STM32_PLL1R_FREQUENCY (STM32_VCO1_FREQUENCY / 8)
@@ -122,13 +114,13 @@
 #define STM32_PLLCFG_PLL2CFG                                   \
   (RCC_PLLCFGR_PLL2VCOSEL_WIDE | RCC_PLLCFGR_PLL2RGE_4_8_MHZ | \
    RCC_PLLCFGR_DIVP2EN)
-#define STM32_PLLCFG_PLL2M RCC_PLLCKSELR_DIVM2(2)
-#define STM32_PLLCFG_PLL2N RCC_PLL2DIVR_N2(200)
-#define STM32_PLLCFG_PLL2P RCC_PLL2DIVR_P2(40)
-#define STM32_PLLCFG_PLL2Q 0
-#define STM32_PLLCFG_PLL2R 0
+#define STM32_PLLCFG_PLL2M RCC_PLLCKSELR_DIVM2(5)
+#define STM32_PLLCFG_PLL2N RCC_PLL2DIVR_N2(160)
+#define STM32_PLLCFG_PLL2P RCC_PLL2DIVR_P2(2)
+#define STM32_PLLCFG_PLL2Q 4
+#define STM32_PLLCFG_PLL2R 4
 
-#define STM32_VCO2_FREQUENCY ((STM32_HSE_FREQUENCY / 2) * 200)
+#define STM32_VCO2_FREQUENCY ((STM32_HSE_FREQUENCY / 5) * 160)
 #define STM32_PLL2P_FREQUENCY (STM32_VCO2_FREQUENCY / 2)
 #define STM32_PLL2Q_FREQUENCY
 #define STM32_PLL2R_FREQUENCY
