@@ -12,7 +12,7 @@ execute_process(
 )
 # extract toolchain path
 get_filename_component(TOOLCHAIN_PATH ${TOOLCHAIN_GCC_PATH} DIRECTORY)
-message(STATUS "Toolchain path: ${TOOLCHAIN_PATH}")
+# message(STATUS "Toolchain path: ${TOOLCHAIN_PATH}")
 
 # cmake-format: off
 find_program(CMAKE_C_COMPILER NAMES ${COMPILER_PREFIX}-gcc HINTS ${TOOLCHAIN_BIN_PATH})
@@ -118,4 +118,4 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 get_filename_component(LIBGCC_PATH ${LIBGCC} DIRECTORY)
-message(STATUS "Library gcc path: ${LIBGCC_PATH}")
+# message(STATUS "Library gcc path: ${LIBGCC_PATH}")
