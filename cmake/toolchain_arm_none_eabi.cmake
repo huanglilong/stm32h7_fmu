@@ -39,6 +39,7 @@ set(AC_HW_FLAGS   "${CPU_FLAGS} -pipe -isystem" CACHE STRING "" FORCE)
 
 # C++ and C flags
 # ref: cmake/px4_add_common_flags.cmake
+# https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 add_compile_options(
     -g # always build debug symbols
     # optimization options
@@ -56,7 +57,9 @@ add_compile_options(
     # Warnings
     -Wall
     -Wextra
-    -Werror
+    # -Werror # TODO(llhuang) fix Nuttx build
+    -Wno-sign-compare # fix Nuttx build
+    -Wno-address # fix Nuttx build
     -Warray-bounds
     -Wcast-align
     -Wdisabled-optimization

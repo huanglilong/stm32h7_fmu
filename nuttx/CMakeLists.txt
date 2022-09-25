@@ -14,31 +14,95 @@ add_custom_command(
       WORKING_DIRECTORY ${NUTTX_SRC_PATH}
 )
 
-# Build and export Nuttx
+# Generate config.h (.config -> include/nuttx/config.h, include/nuttx/version.h, dirlinks)
 add_custom_command(
-      OUTPUT ${CMAKE_BINARY_DIR}/nuttx-export-10.4.0.tar.gz
-      COMMAND make --no-print-directory --silent
-      COMMAND make export --no-print-directory --silent
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${NUTTX_SRC_PATH}/nuttx-export-10.4.0.tar.gz ${CMAKE_BINARY_DIR}
-      COMMENT "Build and export Nuttx."
+      OUTPUT ${NUTTX_SRC_PATH}/include/nuttx/config.h
+      COMMAND make --no-print-directory --silent clean_context
+      COMMAND make --no-print-directory --silent pass1dep
+      COMMENT "Generate config.h."
       DEPENDS
         ${NUTTX_SRC_PATH}/.config
       WORKING_DIRECTORY ${NUTTX_SRC_PATH}
 )
+add_custom_target(nuttx_context DEPENDS ${NUTTX_SRC_PATH}/include/nuttx/config.h)
 
-# Extract and distclean Nuttx
+# builtins
+set(builtin_apps_string)
+set(builtin_apps_decl_string)
+
+list(SORT module_libraries)
+foreach(module ${module_libraries})
+  get_target_property(MAIN ${module} MAIN)
+  get_target_property(STACK_MAIN ${module} STACK_MAIN)
+  get_target_property(PRIORITY ${module} PRIORITY)
+  if(MAIN)
+    set(builtin_apps_string "${builtin_apps_string}{ \"${MAIN}\", ${PRIORITY}, ${STACK_MAIN}, ${MAIN}_main},\n")
+    set(buildin_apps_decl_string "${builtin_apps_decl_string}int ${MAIN}_main(int argc, char *argv[]);\n")
+  endif()
+endforeach()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/fmu.bdat.in ${CMAKE_CURRENT_BINARY_DIR}/fmu.bdat)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/fmu.pdat.in ${CMAKE_CURRENT_BINARY_DIR}/fmu.pdat)
+
+# Build Apps (libapps.a)
+file(GLOB_RECURSE nuttx_apps_files LIST_DIRECTORIES false
+  ${NUTTX_APP_PATH}/*.c
+  ${NUTTX_APP_PATH}/*.h
+)
 add_custom_command(
-      OUTPUT  ${CMAKE_BINARY_DIR}/nuttx-export-10.4.0
-      COMMAND tar -xzf ${NUTTX_SRC_PATH}/nuttx-export-10.4.0.tar.gz -C ${CMAKE_BINARY_DIR}
-      # TODO(llhuang) COMMAND make distclean -C ${NUTTX_SRC_PATH}
-      # remove all generated files
-      COMMAND find ${NUTTX_SRC_PATH} -type f \\\( -name "*.o" -o -name "*lib*.a" -o -name "*.depend" -o -name "*.dep" \\\) -delete
-      COMMAND find ${CMAKE_SOURCE_DIR}/boards -type f \\\( -name "*.o" -o -name "*lib*.a" -o -name "*.depend" -o -name "*.dep" \\\) -delete
-      COMMENT "Extract and distclean Nuttx."
-      DEPENDS
-        ${CMAKE_BINARY_DIR}/nuttx-export-10.4.0.tar.gz
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/apps/libapps.a
+  COMMAND ${CMAKE_COMMAND} -E remove -f ${NUTTX_APP_PATH}/libapps.a ${NUTTX_APP_PATH}/builtin/builtin_list.h ${NUTTX_APP_PATH}/builtin/builtin_proto.h
+  COMMAND find ${NUTTX_APP_PATH} -type f \\\( -name "*.o" -o -name "*lib*.a" -o -name "*.depend" -o -name "*.dep" \\\) -delete
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/fmu.bdat ${NUTTX_APP_PATH}/builtin/registry/fmu.bdat
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/fmu.pdat ${NUTTX_APP_PATH}/builtin/registry/fmu.pdat
+  COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${NUTTX_APP_PATH}/builtin/registry/.updated
+  COMMAND make --no-print-directory --silent TOPDIR="${NUTTX_SRC_PATH}"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${NUTTX_APP_PATH}/libapps.a ${CMAKE_CURRENT_BINARY_DIR}/apps/libapps.a
+  COMMENT "Build Nuttx apps."
+  DEPENDS
+    ${nuttx_apps_files}
+    nuttx_context
+    ${NUTTX_SRC_PATH}/include/nuttx/config.h
+  WORKING_DIRECTORY ${NUTTX_APP_PATH}
 )
 
-# Build Nuttx
-add_custom_target(nuttx_export_libs DEPENDS ${CMAKE_BINARY_DIR}/nuttx-export-10.4.0)
+add_custom_target(nuttx_apps_build DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/apps/libapps.a)
+add_library(nuttx_apps STATIC IMPORTED GLOBAL)
+set_property(TARGET nuttx_apps PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/apps/libapps.a)
+add_dependencies(nuttx_apps nuttx_apps_build)
+
+# helper for all targets
+function(add_nuttx_dir nuttx_lib nuttx_lib_dir kernel extra target)
+  set(nuttx_lib_target all)
+  file(GLOB_RECURSE nuttx_lib_files LIST_DIRECTORIES false
+    ${CMAKE_CURRENT_SOURCE_DIR}/nuttx/${nuttx_lib_dir}/*.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/nuttx/${nuttx_lib_dir}/*.h
+  )
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/nuttx/${nuttx_lib_dir}/lib${nuttx_lib}.a
+		COMMAND ${CMAKE_COMMAND} -E remove -f ${NUTTX_SRC_PATH}/${nuttx_lib_dir}/lib${nuttx_lib}.a
+		COMMAND find ${nuttx_lib_dir} -type f \\\( -name "*.o" -o -name "*lib*.a" -o -name "*.depend" -o -name "*.dep" \\\) -delete
+		COMMAND make -C ${nuttx_lib_dir} --no-print-directory --silent ${nuttx_lib_target} TOPDIR="${NUTTX_SRC_PATH}" KERNEL=${kernel} EXTRAFLAGS=${extra}
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${NUTTX_SRC_PATH}/${nuttx_lib_dir}/lib${nuttx_lib}.a ${CMAKE_CURRENT_BINARY_DIR}/nuttx/${nuttx_lib_dir}/lib${nuttx_lib}.a
+    DEPENDS
+      ${nuttx_lib_files}
+      nuttx_context ${NUTTX_SRC_PATH}/include/nuttx/config.h
+    WORKING_DIRECTORY ${NUTTX_SRC_PATH}
+  )
+  add_custom_target(nuttx_${nuttx_lib}_build DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/nuttx/${nuttx_lib_dir}/lib${nuttx_lib}.a)
+  add_library(nuttx_${nuttx_lib} STATIC IMPORTED GLOBAL)
+	set_property(TARGET nuttx_${nuttx_lib} PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/nuttx/${nuttx_lib_dir}/lib${nuttx_lib}.a)
+	add_dependencies(nuttx_${nuttx_lib} nuttx_${nuttx_lib}_build)
+endfunction()
+
+# add_nuttx_dir(NAME DIRECTORY KERNEL EXTRA)
+add_nuttx_dir(binfmt binfmt y -D__KERNEL__ all)
+add_nuttx_dir(boards boards y -D__KERNEL__ all)
+add_nuttx_dir(drivers drivers y -D__KERNEL__ all)
+add_nuttx_dir(fs fs y -D__KERNEL__ all)
+add_nuttx_dir(sched sched y -D__KERNEL__ all)
+add_nuttx_dir(xx libs/libxx n "" all)
+add_nuttx_dir(crypto crypto y -D__KERNEL__ all)
+add_nuttx_dir(arch arch/arm/src y -D__KERNEL__ all)
+add_nuttx_dir(c libs/libc n "" all)
+add_nuttx_dir(mm mm n "" mm)

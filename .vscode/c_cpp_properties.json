@@ -5,7 +5,12 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}",
-                "${workspaceFolder}/build/nuttx-export-10.4.0/**"
+                "${workspaceFolder}/nuttx/nuttx/include",
+                "${workspaceFolder}/nuttx/nuttx/include/cxx",
+                "${workspaceFolder}/nuttx/nuttx/arch/arm/src/armv7-m",
+                "${workspaceFolder}/nuttx/nuttx/arch/arm/src/chip",
+                "${workspaceFolder}/nuttx/nuttx/arch/arm/src/common",
+                "${workspaceFolder}/nuttx/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
