@@ -73,6 +73,9 @@ if(EXISTS ${NUTTX_BOARD_PATH}/include)
 endif()
 list(APPEND config_module_list ${board_src_rel}/src)
 
+# modules
+list(APPEND config_module_list modules/hello_nuttx)
+
 # Build all FMU Modules and libraries
 foreach(module ${config_module_list})
   add_subdirectory(src/${module})
@@ -108,6 +111,7 @@ target_link_libraries(${FMU_NAME} -Wl,--start-group)
 target_link_libraries(${FMU_NAME} gcc)
 target_link_libraries(${FMU_NAME} ${NUTTX_LIBS})
 target_link_libraries(${FMU_NAME} drivers_board)
+target_link_libraries(${FMU_NAME} modules__hello_nuttx)
 # "LLVM low level C++ Library" to "GNU low level libsupc++"
 # target_link_libraries(${FMU_NAME} supc++)
 target_link_libraries(${FMU_NAME} -Wl,--end-group)
