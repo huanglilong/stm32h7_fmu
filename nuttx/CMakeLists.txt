@@ -3,26 +3,26 @@
 
 # Config Nuttx
 add_custom_command(
-      OUTPUT ${NUTTX_SRC_PATH}/.config
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/boards/${NUTTX_BOARD_CONFIG}/scripts/Make.defs ${NUTTX_SRC_PATH}/Make.defs
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/boards/${NUTTX_BOARD_CONFIG}/configs/nsh/defconfig ${NUTTX_SRC_PATH}/.config
-      COMMAND make olddefconfig
-      DEPENDS
-        ${CMAKE_SOURCE_DIR}/boards/${NUTTX_BOARD_CONFIG}/scripts/Make.defs
-        ${CMAKE_SOURCE_DIR}/boards/${NUTTX_BOARD_CONFIG}/configs/nsh/defconfig
-      COMMENT "Board configuration for Nuttx."
-      WORKING_DIRECTORY ${NUTTX_SRC_PATH}
+  OUTPUT ${NUTTX_SRC_PATH}/.config
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/boards/${NUTTX_BOARD_CONFIG}/scripts/Make.defs ${NUTTX_SRC_PATH}/Make.defs
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/boards/${NUTTX_BOARD_CONFIG}/configs/nsh/defconfig ${NUTTX_SRC_PATH}/.config
+  COMMAND make olddefconfig
+  DEPENDS
+    ${CMAKE_SOURCE_DIR}/boards/${NUTTX_BOARD_CONFIG}/scripts/Make.defs
+    ${CMAKE_SOURCE_DIR}/boards/${NUTTX_BOARD_CONFIG}/configs/nsh/defconfig
+  COMMENT "Board configuration for Nuttx."
+  WORKING_DIRECTORY ${NUTTX_SRC_PATH}
 )
 
 # Generate config.h (.config -> include/nuttx/config.h, include/nuttx/version.h, dirlinks)
 add_custom_command(
-      OUTPUT ${NUTTX_SRC_PATH}/include/nuttx/config.h
-      COMMAND make --no-print-directory --silent clean_context
-      COMMAND make --no-print-directory --silent pass1dep
-      COMMENT "Generate config.h."
-      DEPENDS
-        ${NUTTX_SRC_PATH}/.config
-      WORKING_DIRECTORY ${NUTTX_SRC_PATH}
+  OUTPUT ${NUTTX_SRC_PATH}/include/nuttx/config.h
+  COMMAND make --no-print-directory --silent clean_context
+  COMMAND make --no-print-directory --silent pass1dep
+  COMMENT "Generate config.h."
+  DEPENDS
+    ${NUTTX_SRC_PATH}/.config
+  WORKING_DIRECTORY ${NUTTX_SRC_PATH}
 )
 add_custom_target(nuttx_context DEPENDS ${NUTTX_SRC_PATH}/include/nuttx/config.h)
 
