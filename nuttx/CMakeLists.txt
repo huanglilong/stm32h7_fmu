@@ -30,6 +30,9 @@ add_custom_target(nuttx_context DEPENDS ${NUTTX_SRC_PATH}/include/nuttx/config.h
 set(builtin_apps_string)
 set(builtin_apps_decl_string)
 
+# TODO(llhuang)
+set(builtin_apps_string "${builtin_apps_string}{ \"hello_nuttx\", SCHED_PRIORITY_DEFAULT, 2048, hello_nuttx_main},\n")
+set(builtin_apps_decl_string "${builtin_apps_decl_string}int hello_nuttx_main(int argc, char *argv[]);\n")
 list(SORT module_libraries)
 foreach(module ${module_libraries})
   get_target_property(MAIN ${module} MAIN)
