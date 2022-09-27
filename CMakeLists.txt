@@ -81,6 +81,9 @@ foreach(module ${config_module_list})
   add_subdirectory(src/${module})
 endforeach()
 
+# get all FMU libraries
+get_property(module_libraries GLOBAL PROPERTY FMU_MODULE_LIBRARIES)
+
 # generate binary
 set(FMU_NAME ${PROJECT_NAME})
 add_executable(${FMU_NAME} empty.cc)
@@ -111,7 +114,7 @@ target_link_libraries(${FMU_NAME} -Wl,--start-group)
 target_link_libraries(${FMU_NAME} gcc)
 target_link_libraries(${FMU_NAME} ${NUTTX_LIBS})
 target_link_libraries(${FMU_NAME} drivers_board)
-target_link_libraries(${FMU_NAME} modules__hello_nuttx)
+target_link_libraries(${FMU_NAME} ${module_libraries})
 # "LLVM low level C++ Library" to "GNU low level libsupc++"
 # target_link_libraries(${FMU_NAME} supc++)
 target_link_libraries(${FMU_NAME} -Wl,--end-group)
