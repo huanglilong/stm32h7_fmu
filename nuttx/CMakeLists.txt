@@ -26,13 +26,12 @@ add_custom_command(
 )
 add_custom_target(nuttx_context DEPENDS ${NUTTX_SRC_PATH}/include/nuttx/config.h)
 
-# builtins
+# FMU builtins
 set(builtin_apps_string)
 set(builtin_apps_decl_string)
 
-# TODO(llhuang)
-set(builtin_apps_string "${builtin_apps_string}{ \"hello_nuttx\", SCHED_PRIORITY_DEFAULT, 2048, hello_nuttx_main},\n")
-set(builtin_apps_decl_string "${builtin_apps_decl_string}int hello_nuttx_main(int argc, char *argv[]);\n")
+# Get all FMU modules and libraries
+get_property(module_libraries GLOBAL PROPERTY FMU_MODULE_LIBRARIES)
 list(SORT module_libraries)
 foreach(module ${module_libraries})
   get_target_property(MAIN ${module} MAIN)
@@ -40,7 +39,7 @@ foreach(module ${module_libraries})
   get_target_property(PRIORITY ${module} PRIORITY)
   if(MAIN)
     set(builtin_apps_string "${builtin_apps_string}{ \"${MAIN}\", ${PRIORITY}, ${STACK_MAIN}, ${MAIN}_main},\n")
-    set(buildin_apps_decl_string "${builtin_apps_decl_string}int ${MAIN}_main(int argc, char *argv[]);\n")
+    set(builtin_apps_decl_string "${builtin_apps_decl_string}int ${MAIN}_main(int argc, char *argv[]);\n")
   endif()
 endforeach()
 

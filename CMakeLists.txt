@@ -11,6 +11,16 @@ message(STATUS "Board config: ${NUTTX_BOARD_CONFIG}")
 set(NUTTX_SRC_PATH "${CMAKE_SOURCE_DIR}/nuttx/nuttx" CACHE STRING "" FORCE)
 set(NUTTX_APP_PATH "${CMAKE_SOURCE_DIR}/nuttx/apps" CACHE STRING "" FORCE)
 
+# Nuttx
+include_directories(
+  ${NUTTX_SRC_PATH}/include
+  ${NUTTX_SRC_PATH}/include/cxx
+  ${NUTTX_SRC_PATH}/arch/arm/src/armv7-m
+  ${NUTTX_SRC_PATH}/arch/arm/src/chip
+  ${NUTTX_SRC_PATH}/arch/arm/src/common
+  ${NUTTX_APP_PATH}/include
+)
+
 # Toolchain
 set(CMAKE_TOOLCHAIN_FILE cmake/toolchain_arm_none_eabi.cmake)
 
@@ -37,10 +47,27 @@ define_property(GLOBAL PROPERTY FMU_SRC_FILES
 # include cmakes
 include(fmu_add_library)
 include(fmu_add_module)
-# all FMU modules and libraries
+
+# Keep all FMU modules and libraries
 set(config_module_list)
 
+#-------------------------------------------------------------------------
+# FMU modules and libraries
+#-------------------------------------------------------------------------
+
+# Custom board
+file(RELATIVE_PATH board_src_rel ${CMAKE_SOURCE_DIR}/src ${NUTTX_BOARD_PATH})
+if(EXISTS ${NUTTX_BOARD_PATH}/include)
+  include_directories(${NUTTX_BOARD_PATH}/include)
+endif()
+list(APPEND config_module_list ${board_src_rel}/src)
+
+# All FMU modules and libraries
+list(APPEND config_module_list modules/hello_nuttx)
+
+#-------------------------------------------------------------------------
 # Project
+#-------------------------------------------------------------------------
 project(fmu_nuttx C CXX ASM)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -55,47 +82,28 @@ set(CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS} ${AC_HW_FLAGS}")
 set(CMAKE_SKIP_RPATH ON)
 set(BUILD_SHARED_LIBS OFF)
 
-# Build Nuttx for external board configs
-add_subdirectory(nuttx ${CMAKE_BINARY_DIR}/nuttx)
-include_directories(
-  ${NUTTX_SRC_PATH}/include
-  ${NUTTX_SRC_PATH}/include/cxx
-  ${NUTTX_SRC_PATH}/arch/arm/src/armv7-m
-  ${NUTTX_SRC_PATH}/arch/arm/src/chip
-  ${NUTTX_SRC_PATH}/arch/arm/src/common
-  ${NUTTX_APP_PATH}/include
-)
+#-------------------------------------------------------------------------
+# Build Nuttx, Nuttx Apps, FMU modules and libraries and generates Binary
+#-------------------------------------------------------------------------
 
-# drivers_board
-file(RELATIVE_PATH board_src_rel ${CMAKE_SOURCE_DIR}/src ${NUTTX_BOARD_PATH})
-if(EXISTS ${NUTTX_BOARD_PATH}/include)
-  include_directories(${NUTTX_BOARD_PATH}/include)
-endif()
-list(APPEND config_module_list ${board_src_rel}/src)
-
-# modules
-list(APPEND config_module_list modules/hello_nuttx)
-
-# Build all FMU Modules and libraries
+# Build all FMU Modules and libraries first!
 foreach(module ${config_module_list})
   add_subdirectory(src/${module})
 endforeach()
 
-# get all FMU libraries
-get_property(module_libraries GLOBAL PROPERTY FMU_MODULE_LIBRARIES)
+# Build and config Nuttx and Nuttx Apps
+add_subdirectory(nuttx ${CMAKE_BINARY_DIR}/nuttx)
 
-# generate binary
+# Generate binary
 set(FMU_NAME ${PROJECT_NAME})
 add_executable(${FMU_NAME} empty.cc)
-# nuttx_export_libs: force build Nuttx first
-# add_dependencies(${FMU_NAME} nuttx_export_libs)
-# add all Nuttx libraries
+# Add all Nuttx libraries
 set(NUTTX_LIBS)
 list(APPEND NUTTX_LIBS nuttx_sched nuttx_drivers nuttx_boards nuttx_c nuttx_mm nuttx_arch nuttx_xx nuttx_apps nuttx_fs nuttx_binfmt)
 
-# same as '-Wl,--output=${FMU_NAME}.elf'
-# set(FMU_NAME_ELF ${PROJECT_BINARY_DIR}/${FMU_NAME}.elf)
-# set_target_properties(${FMU_NAME} PROPERTIES OUTPUT_NAME ${FMU_NAME_ELF})
+# Linker
+# Get all FMU modules and libraries
+get_property(module_libraries GLOBAL PROPERTY FMU_MODULE_LIBRARIES)
 target_link_libraries(${FMU_NAME}
   -nostartfiles
   -nodefaultlibs
@@ -115,8 +123,6 @@ target_link_libraries(${FMU_NAME} gcc)
 target_link_libraries(${FMU_NAME} ${NUTTX_LIBS})
 target_link_libraries(${FMU_NAME} drivers_board)
 target_link_libraries(${FMU_NAME} ${module_libraries})
-# "LLVM low level C++ Library" to "GNU low level libsupc++"
-# target_link_libraries(${FMU_NAME} supc++)
 target_link_libraries(${FMU_NAME} -Wl,--end-group)
 
 add_custom_command(
