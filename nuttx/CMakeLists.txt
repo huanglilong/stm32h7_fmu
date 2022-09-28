@@ -58,7 +58,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/fmu.bdat ${NUTTX_APP_PATH}/builtin/registry/fmu.bdat
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/fmu.pdat ${NUTTX_APP_PATH}/builtin/registry/fmu.pdat
   COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${NUTTX_APP_PATH}/builtin/registry/.updated
-  COMMAND make --no-print-directory --silent TOPDIR="${NUTTX_SRC_PATH}"
+  COMMAND make --no-print-directory --silent TOPDIR="${NUTTX_SRC_PATH}" > ${CMAKE_CURRENT_BINARY_DIR}/nuttx_apps.log
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${NUTTX_APP_PATH}/libapps.a ${CMAKE_CURRENT_BINARY_DIR}/apps/libapps.a
   COMMENT "Build Nuttx apps."
   DEPENDS
@@ -84,7 +84,7 @@ function(add_nuttx_dir nuttx_lib nuttx_lib_dir kernel extra target)
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/nuttx/${nuttx_lib_dir}/lib${nuttx_lib}.a
 		COMMAND ${CMAKE_COMMAND} -E remove -f ${NUTTX_SRC_PATH}/${nuttx_lib_dir}/lib${nuttx_lib}.a
 		COMMAND find ${nuttx_lib_dir} -type f \\\( -name "*.o" -o -name "*lib*.a" -o -name "*.depend" -o -name "*.dep" \\\) -delete
-		COMMAND make -C ${nuttx_lib_dir} --no-print-directory --silent ${nuttx_lib_target} TOPDIR="${NUTTX_SRC_PATH}" KERNEL=${kernel} EXTRAFLAGS=${extra}
+		COMMAND make -C ${nuttx_lib_dir} --no-print-directory --silent ${nuttx_lib_target} TOPDIR="${NUTTX_SRC_PATH}" KERNEL=${kernel} EXTRAFLAGS=${extra} > ${CMAKE_CURRENT_BINARY_DIR}/nuttx_${nuttx_lib}.log
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${NUTTX_SRC_PATH}/${nuttx_lib_dir}/lib${nuttx_lib}.a ${CMAKE_CURRENT_BINARY_DIR}/nuttx/${nuttx_lib_dir}/lib${nuttx_lib}.a
     DEPENDS
       ${nuttx_lib_files}
