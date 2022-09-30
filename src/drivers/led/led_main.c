@@ -13,9 +13,13 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "boards/fmu-h743vi/src/fmu-h743vi.h"
 #include "chip.h"
 #include "stm32_gpio.h"
+
+// Blue LED: GPIO_PA1
+#define GPIO_LED_BLUE                                                   \
+  (GPIO_OUTPUT | GPIO_PUSHPULL | GPIO_SPEED_50MHz | GPIO_OUTPUT_CLEAR | \
+   GPIO_PORTA | GPIO_PIN1)
 
 typedef struct file file_t;
 
@@ -34,7 +38,7 @@ static const struct file_operations led_ops = {led_open,   // open
 
 static int led_open(file_t* filep) {
   // configure gpio for led gpio
-  stm32_configgpio(GPIO_LED_GREEN);
+  stm32_configgpio(GPIO_LED_BLUE);
   return 0;
 }
 
@@ -46,19 +50,19 @@ static int led_close(file_t* filep) {
 static ssize_t led_read(file_t* filep, char* buffer, size_t buffer_len) {
   // nothing or return led's status
   uint8_t on = *buffer > 0 ? 1 : 0;
-  stm32_gpiowrite(GPIO_LED_GREEN, on);
+  stm32_gpiowrite(GPIO_LED_BLUE, on);
   return 0;
 }
 
 static ssize_t led_write(file_t* filep, const char* buffer, size_t buffer_len) {
   // turn on / off
   uint8_t on = *buffer > 0 ? 1 : 0;
-  stm32_gpiowrite(GPIO_LED_GREEN, on);
+  stm32_gpiowrite(GPIO_LED_BLUE, on);
   return 0;
 }
 
 void led_register() {
-  stm32_configgpio(GPIO_LED_GREEN);
+  stm32_configgpio(GPIO_LED_BLUE);
   (void)register_driver("/dev/led1", &led_ops, 0444, NULL);
 }
 
