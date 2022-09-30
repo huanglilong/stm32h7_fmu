@@ -21,6 +21,9 @@ include_directories(
   ${NUTTX_APP_PATH}/include
 )
 
+# FMU
+include_directories(${CMAKE_SOURCE_DIR})
+
 # Toolchain
 set(CMAKE_TOOLCHAIN_FILE cmake/toolchain_arm_none_eabi.cmake)
 
@@ -64,6 +67,7 @@ list(APPEND config_module_list ${board_src_rel}/src)
 
 # All FMU modules and libraries
 list(APPEND config_module_list modules/hello_nuttx)
+list(APPEND config_module_list drivers/led)
 
 #-------------------------------------------------------------------------
 # Project
