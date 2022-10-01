@@ -1,7 +1,9 @@
 # Build Nuttx
 # Ref: PX4 platforms/nuttx/NuttX/CMakeLists.txt
 
+#-------------------------------------------------------
 # Config Nuttx
+#-------------------------------------------------------
 add_custom_command(
   OUTPUT ${NUTTX_SRC_PATH}/.config
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/boards/${NUTTX_BOARD_CONFIG}/scripts/Make.defs ${NUTTX_SRC_PATH}/Make.defs
@@ -14,7 +16,9 @@ add_custom_command(
   WORKING_DIRECTORY ${NUTTX_SRC_PATH}
 )
 
+#------------------------------------------------------------------------------------------
 # Generate config.h (.config -> include/nuttx/config.h, include/nuttx/version.h, dirlinks)
+#------------------------------------------------------------------------------------------
 add_custom_command(
   OUTPUT ${NUTTX_SRC_PATH}/include/nuttx/config.h
   COMMAND make --no-print-directory --silent clean_context
@@ -26,7 +30,9 @@ add_custom_command(
 )
 add_custom_target(nuttx_context DEPENDS ${NUTTX_SRC_PATH}/include/nuttx/config.h)
 
+#-------------------------------------------------------
 # FMU builtins
+#-------------------------------------------------------
 set(builtin_apps_string)
 set(builtin_apps_decl_string)
 
@@ -46,7 +52,47 @@ endforeach()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/fmu.bdat.in ${CMAKE_CURRENT_BINARY_DIR}/fmu.bdat)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/fmu.pdat.in ${CMAKE_CURRENT_BINARY_DIR}/fmu.pdat)
 
+#-------------------------------------------------------
+# ROMFS(why PX4 works)
+#-------------------------------------------------------
+set(romfs_src_dir ${CMAKE_SOURCE_DIR}/ROMFS/fmu_common)
+# create romfs.img
+find_program(GENROMFS genromfs)
+if(NOT GENROMFS)
+  message(FATAL_ERROR "genromfs not found")
+endif()
+
+add_custom_command(
+  OUTPUT
+    romfs.img
+    romfs.txt
+  COMMAND ${CMAKE_COMMAND} -E remove -f romfs.img romfs.txt
+  COMMAND ${GENROMFS} -f romfs.img -d ${romfs_src_dir} -V "NSHInitVol" -v > romfs.txt 2>&1
+  COMMENT "ROMFS: generating image."
+)
+# create nsh_romfsimg.h
+find_program(XXD xxd)
+if(NOT XXD)
+  message(FATAL_ERROR "xxd not found")
+endif()
+
+find_program(SED sed)
+if(NOT SED)
+  message(FATAL_ERROR "sed not found")
+endif()
+
+add_custom_command(
+  OUTPUT ${NUTTX_BOARD_PATH}/include/nsh_romfsimg.h
+  COMMAND ${CMAKE_COMMAND} -E remove -f ${NUTTX_BOARD_PATH}/include/nsh_romfsimg.h
+  COMMAND ${XXD} -i romfs.img nsh_romfsimg.h
+  COMMAND ${SED} 's/unsigned/const unsigned/g' nsh_romfsimg.h > nsh_romfsimg.h.tmp && ${CMAKE_COMMAND} -E rename nsh_romfsimg.h.tmp  ${NUTTX_BOARD_PATH}/include/nsh_romfsimg.h
+  DEPENDS romfs.img
+  COMMENT "ROMFS: generating nsh_romfsimg.h."
+)
+
+#-------------------------------------------------------
 # Build Apps (libapps.a)
+#-------------------------------------------------------
 file(GLOB_RECURSE nuttx_apps_files LIST_DIRECTORIES false
   ${NUTTX_APP_PATH}/*.c
   ${NUTTX_APP_PATH}/*.h
@@ -65,6 +111,7 @@ add_custom_command(
     ${nuttx_apps_files}
     nuttx_context
     ${NUTTX_SRC_PATH}/include/nuttx/config.h
+    ${NUTTX_BOARD_PATH}/include/nsh_romfsimg.h
   WORKING_DIRECTORY ${NUTTX_APP_PATH}
 )
 
@@ -73,6 +120,9 @@ add_library(nuttx_apps STATIC IMPORTED GLOBAL)
 set_property(TARGET nuttx_apps PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/apps/libapps.a)
 add_dependencies(nuttx_apps nuttx_apps_build)
 
+#-------------------------------------------------------
+# Nuttx
+#-------------------------------------------------------
 # helper for all targets
 function(add_nuttx_dir nuttx_lib nuttx_lib_dir kernel extra target)
   set(nuttx_lib_target all)
