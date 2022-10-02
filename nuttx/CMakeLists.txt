@@ -56,6 +56,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/fmu.pdat.in ${CMAKE_CURRENT_BINARY_DI
 # ROMFS(why PX4 works)
 #-------------------------------------------------------
 set(romfs_src_dir ${CMAKE_SOURCE_DIR}/ROMFS/fmu_common)
+file(GLOB_RECURSE romfs_files ${romfs_src_dir}/*)
 # create romfs.img
 find_program(GENROMFS genromfs)
 if(NOT GENROMFS)
@@ -69,6 +70,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E remove -f romfs.img romfs.txt
   COMMAND ${GENROMFS} -f romfs.img -d ${romfs_src_dir} -V "NSHInitVol" -v > romfs.txt 2>&1
   COMMENT "ROMFS: generating image."
+  DEPENDS ${romfs_files}
 )
 # create nsh_romfsimg.h
 find_program(XXD xxd)

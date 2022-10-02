@@ -2,3 +2,4 @@ echo "hello nuttx startup script rcS!"
 
 # turn off led
 led off
+echo "turn off led"
