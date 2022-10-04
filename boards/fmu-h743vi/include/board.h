@@ -361,22 +361,14 @@
 #define GPIO_USART6_TX GPIO_USART6_TX_2 /* PG14 */
 
 /* I2C1 Use Nucleo I2C1 pins */
+#define GPIO_I2C1_SCL GPIO_I2C1_SCL_1 /* PB6 */
+#define GPIO_I2C1_SDA GPIO_I2C1_SDA_1 /* PB7 */
 
-#define GPIO_I2C1_SCL GPIO_I2C1_SCL_2 /* PB8 - D15 */
-#define GPIO_I2C1_SDA GPIO_I2C1_SDA_2 /* PB9 - D14 */
-
-/* I2C2 Use Nucleo I2C2 pins */
-
-#define GPIO_I2C2_SCL GPIO_I2C2_SCL_2   /* PF1 - D69 */
-#define GPIO_I2C2_SDA GPIO_I2C2_SDA_2   /* PF0 - D68 */
-#define GPIO_I2C2_SMBA GPIO_I2C2_SMBA_2 /* PF2 - D70 */
-
-/* SPI3 */
-
-#define GPIO_SPI3_MISO GPIO_SPI3_MISO_1 /* PB4 */
-#define GPIO_SPI3_MOSI GPIO_SPI3_MOSI_4 /* PB5 */
-#define GPIO_SPI3_SCK GPIO_SPI3_SCK_1   /* PB3 */
-#define GPIO_SPI3_NSS GPIO_SPI3_NSS_2   /* PA4 */
+/* SPI1 */
+#define GPIO_SPI1_MISO GPIO_SPI1_MISO_1 /* PA6 */
+#define GPIO_SPI1_MOSI GPIO_SPI1_MOSI_1 /* PA7 */
+#define GPIO_SPI1_SCK GPIO_SPI1_SCK_1   /* PA5 */
+// #define GPIO_SPI1_NSS GPIO_SPI1_NSS_1   /* PA15, actual: PC13 */
 
 /* TIM1 */
 

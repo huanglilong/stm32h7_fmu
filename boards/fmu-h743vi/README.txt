@@ -13,9 +13,9 @@ Nuttx configuration for STM32H743VI
     D2:   PB3
     D3:   PB4
   SPI1:
-    MISO: PA5
-    MOSI: PA6
-    SCK:  PA7
+    MISO: PA6
+    MOSI: PA7
+    SCK:  PA5
   SPI2:
     MISO: PC2
     MOSI: PC3
