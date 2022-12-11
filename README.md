@@ -5,6 +5,10 @@ Ref:
 Build:
   1. How to build Nutxx
 
+    $ git clone https://github.com/huanglilong/stm32h7_fmu
+
+    $ git submodule update --init --recursive
+
     $ cmake -B build;cmake --build build
 
   2. How to update firmware
